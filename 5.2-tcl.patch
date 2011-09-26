@@ -1,0 +1,11 @@
+--- origsrc/db-5.1.19/dist/aclocal/tcl.m4	2010-08-27 10:08:03.000000000 -0500
++++ src/db-5.1.19/dist/aclocal/tcl.m4	2010-12-19 21:56:45.135062300 -0600
+@@ -107,7 +107,7 @@ AC_DEFUN(SC_LOAD_TCLCONFIG, [
+ 	# given by the Tcl spec are insufficient for our use.  [#5779],[#17109]
+ 	#
+ 	case "$host_os" in
+-	aix*)
++	aix*|cygwin*)
+ 		LIBTSO_LIBS="$LIBTSO_LIBS $TCL_LIB_SPEC $TCL_LIB_FLAG"
+ 		LIBTSO_LIBS="$LIBTSO_LIBS -L$TCL_EXEC_PREFIX/lib -ltcl$TCL_VERSION";;
+ 	esac

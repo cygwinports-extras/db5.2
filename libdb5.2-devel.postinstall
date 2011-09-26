@@ -1,0 +1,29 @@
+incdir=/usr/include
+libdir=/usr/lib
+slot=5.2
+rank=502
+
+/usr/sbin/update-alternatives \
+  --install ${incdir}/db.h      db.h       ${incdir}/db${slot}/db.h ${rank} \
+  --slave   ${incdir}/db_185.h  db_185.h   ${incdir}/db${slot}/db_185.h \
+  --slave   ${incdir}/db_cxx.h  db_cxx.h   ${incdir}/db${slot}/db_cxx.h \
+  --slave   ${incdir}/dbsql.h   dbsql.h    ${incdir}/db${slot}/dbsql.h \
+  --slave   ${incdir}/db        db         ${incdir}/db${slot} \
+  --slave   ${libdir}/libdb.a      libdb.a      ${libdir}/libdb-${slot}.a \
+  --slave   ${libdir}/libdb.dll.a  libdb.dll.a  ${libdir}/libdb-${slot}.dll.a \
+  --slave   ${libdir}/libdb.la     libdb.la     ${libdir}/libdb-${slot}.la \
+  --slave   ${libdir}/libdb_cxx.a      libdb_cxx.a      ${libdir}/libdb_cxx-${slot}.a \
+  --slave   ${libdir}/libdb_cxx.dll.a  libdb_cxx.dll.a  ${libdir}/libdb_cxx-${slot}.dll.a \
+  --slave   ${libdir}/libdb_cxx.la     libdb_cxx.la     ${libdir}/libdb_cxx-${slot}.la \
+  --slave   ${libdir}/libdb_sql.a      libdb_sql.a      ${libdir}/libdb_sql-${slot}.a \
+  --slave   ${libdir}/libdb_sql.dll.a  libdb_sql.dll.a  ${libdir}/libdb_sql-${slot}.dll.a \
+  --slave   ${libdir}/libdb_sql.la     libdb_sql.la     ${libdir}/libdb_sql-${slot}.la
+
+/usr/sbin/update-alternatives \
+  --install ${incdir}/db5  db5  ${incdir}/db${slot} ${rank} \
+  --slave   ${libdir}/libdb5.a      libdb5.a      ${libdir}/libdb-${slot}.a \
+  --slave   ${libdir}/libdb5.dll.a  libdb5.dll.a  ${libdir}/libdb-${slot}.dll.a \
+  --slave   ${libdir}/libdb5.la     libdb5.la     ${libdir}/libdb-${slot}.la \
+  --slave   ${libdir}/libdb5_cxx.a      libdb5_cxx.a      ${libdir}/libdb_cxx-${slot}.a \
+  --slave   ${libdir}/libdb5_cxx.dll.a  libdb5_cxx.dll.a  ${libdir}/libdb_cxx-${slot}.dll.a \
+  --slave   ${libdir}/libdb5_cxx.la     libdb5_cxx.la     ${libdir}/libdb_cxx-${slot}.la

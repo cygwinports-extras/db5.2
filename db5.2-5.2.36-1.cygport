@@ -1,0 +1,78 @@
+inherit java tcl
+
+DESCRIPTION="Berkeley DB version ${PV_MAJ_MIN}"
+HOMEPAGE="http://www.oracle.com/technology/products/berkeley-db/db/index.html"
+SRC_URI="http://download.oracle.com/berkeley-db/db-${PV}.tar.gz"
+SRC_DIR="db-${PV}"
+
+if defined PV[4]
+then
+	for ((p = 1; p <= PV[4]; p++))
+	do
+		PATCH_URI+=" ${HOMEPAGE%/*}/update/${tarpv}/patch.${tarpv}.${p}"
+	done
+fi
+PATCH_URI+=" 5.2-java.patch 5.2-tcl.patch"
+
+PKG_NAMES="${PN} lib${PN} lib${PN}-devel ${PN}-doc java-${PN} tcl-${PN}"
+db5_2_CONTENTS="--exclude=html usr/bin/*.exe usr/share/doc/"
+libdb5_2_CONTENTS="--exclude=*java* usr/bin/*-${PV_MAJ_MIN}.dll"
+libdb5_2_devel_CONTENTS="etc/p*/lib${PN}-devel.sh usr/include/ usr/lib/lib*"
+db5_2_doc_CONTENTS="usr/share/doc/${PN}/html/"
+java_db5_2_CONTENTS="usr/bin/cygdb_java-${PV_MAJ_MIN}.dll ${JAVA_DIR#/} ${JAVADOC_DIR#/}"
+tcl_db5_2_CONTENTS="${TCL_LIBDIR#/}"
+
+DIFF_EXCLUDES="config.hin db.jar libtool.ac lt*.ac"
+
+src_compile() {
+	cd ${S}/dist
+	ac_macrodir=aclocal libtoolize --copy --force --install
+	./s_config || error "s_config failed"
+
+	cd ${B}
+
+	CYGCONF_SOURCE=${S}/dist \
+	cygconf \
+		--includedir=/usr/include/db${PV_MAJ_MIN} \
+		--with-mutex=x86/gcc-assembly \
+		--enable-compat185 \
+		--enable-cxx \
+		--enable-dynamic \
+		--enable-sql \
+		--enable-java JAVA=${JAVA} JAVAC=${JAVAC} JAVAH=${JAVAH} JAR=${JAR} \
+		--enable-tcl --with-tcl=/usr/lib --enable-test
+
+	cygmake libdb-${PV_MAJ_MIN}.la
+	cygmake C_OBJS="libdb-${PV_MAJ_MIN}.la"
+}
+
+src_install() {
+	local h l lx prog
+
+	cd ${B}
+	cyginstall docdir=/usr/share/doc/${PN}/html emode=755 fmode=644
+
+	# remove unslotted static libs
+	rm -f ${D}/usr/lib/libdb{,_cxx,_sql}.a
+
+	# slot executables
+	(
+	 cd ${D}/usr/bin
+	 rename db_ db${PV_MAJ_MIN}_ *.exe
+	 mv dbsql.exe dbsql-${PV_MAJ_MIN}.exe
+	)
+
+	rm -f ${D}/usr/lib/libdb_java*
+	# relocate and slot Java jar
+	dodir ${JAVA_DIR} ${JAVADOC_DIR}
+	mv ${D}/usr/lib/db.jar ${D}${JAVA_DIR}/db-${PV_MAJ_MIN}.jar
+	dosym ../doc/${PN}/html/java ${JAVADOC_DIR}/${PN}
+
+	rm -f ${D}/usr/lib/libdb_tcl*
+	# relocate and install Tcl module
+	dodir ${TCL_LIBDIR}/db${PV_MAJ_MIN}
+	mv ${D}/usr/lib/cygdb_tcl-${PV_MAJ_MIN}.dll ${D}${TCL_LIBDIR}/db${PV_MAJ_MIN}/
+	pushd ${D}${TCL_LIBDIR}/db${PV_MAJ_MIN}
+	echo pkg_mkIndex . cygdb_tcl-${PV_MAJ_MIN}.dll | PATH=${D}/usr/bin:${PATH} ${TCLSH}
+	popd
+}
